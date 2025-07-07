@@ -9,7 +9,8 @@
     "lint": "next lint",
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy"
+    "db:migrate": "prisma migrate deploy",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
@@ -22,7 +23,8 @@
     "node-telegram-bot-api": "^0.66.0",
     "prisma": "^6.11.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "supports-color": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
