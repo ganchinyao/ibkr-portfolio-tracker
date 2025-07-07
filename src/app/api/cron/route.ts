@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parse } from "csv-parse/sync";
+import { prisma } from "@/../lib/prisma";
 
 export async function POST(req: NextRequest) {
-    if (
-      req.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`
-    ) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (
+    req.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     // Step 1: Send request for flex query report
@@ -61,6 +62,11 @@ export async function POST(req: NextRequest) {
     const endingValue = Number(parseFloat(firstRecord.EndingValue).toFixed(2));
 
     console.log({ date, endingValue });
+    await prisma.portfolioValue.upsert({
+      where: { date },
+      update: { value: endingValue },
+      create: { date, value: endingValue },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
