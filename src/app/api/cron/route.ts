@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parse } from "csv-parse/sync";
 import { prisma } from "@/../lib/prisma";
+import { generateChartImage } from "@/app/utils/chart";
+import { sendToTelegram } from "@/../lib/telegram";
+import { isFriday } from "@/app/utils/date";
 
 export async function POST(req: NextRequest) {
   if (
@@ -62,11 +65,20 @@ export async function POST(req: NextRequest) {
     const endingValue = Number(parseFloat(firstRecord.EndingValue).toFixed(2));
 
     console.log({ date, endingValue });
+    // Update portfolio value to the database
     await prisma.portfolioValue.upsert({
       where: { date },
       update: { value: endingValue },
       create: { date, value: endingValue },
     });
+
+    // Send weekly report every friday to telegram
+    if (isFriday()) {
+      console.log("It's Friday, sending weekly update to Telegram");
+      await sendWeeklyUpdate();
+    } else {
+      console.log("Not Friday, skipping weekly update");
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -77,5 +89,28 @@ export async function POST(req: NextRequest) {
       },
       { status: 500 }
     );
+  }
+}
+
+async function sendWeeklyUpdate() {
+  try {
+    const portfolioData = await prisma.portfolioValue.findMany({
+      orderBy: {
+        date: "asc",
+      },
+    });
+
+    if (portfolioData.length === 0) {
+      console.log("No portfolio data found");
+      return;
+    }
+
+    console.log(`Found ${portfolioData.length} portfolio records`);
+
+    // Generate chart image and send to telegram
+    const chartBuffer = await generateChartImage(portfolioData);
+    await sendToTelegram(chartBuffer, portfolioData);
+  } catch (error) {
+    console.error("Error sending weekly update:", error);
   }
 }
