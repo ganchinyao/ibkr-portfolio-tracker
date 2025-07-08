@@ -68,9 +68,7 @@ export async function sendToTelegram(
   const message =
     `📊 *Weekly Portfolio Update - ${today()}*\n\n` +
     `💰 Current Value: $${currentValue.toLocaleString()}\n` +
-    `💰 Starting Value: $${Number(
-      process.env.STARTING_PORTFOLIO_VALUE!
-    ).toLocaleString()}\n` +
+    `💰 Starting Value: $${startValue.toLocaleString()}\n` +
     `📈 Total Return: ${totalReturn >= 0 ? "+" : ""}${totalReturn.toFixed(
       2
     )}%\n` +
