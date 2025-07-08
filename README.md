@@ -27,7 +27,7 @@ The portfolio value is safely obtained through the IBKR Flex Web Service API, wh
 - npm or yarn
 - Telegram Bot Token
 - Telegram Chat ID
-- IBKR Flex Token
+- IBKR account
 - Database (PostgreSQL, MySQL, or SQLite)
 
 ### Installation
@@ -136,3 +136,17 @@ To change the cron timing, modify the `vercel.json` file:
 
 Note: Ensure you've obtained a random string for the `CRON_SECRET` environment variable. This secret is checked against incoming requests. If there is a mismatch, the request will not be processed. This ensures only the Vercel cron job is authorized to trigger the `POST` request in `api/cron`.
 
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for more information.
+
+## Disclaimer
+
+This software is provided as is, without warranty of any kind. The author(s) and contributor(s) will not be liable for any damages, loss of profits, or any other kind of loss while using this software.
+
+Use of this software is at your own risk and discretion. Users accept responsibility for configuring the software suitably and understanding the implications of its use.
+
+The provided APIs can include sensitive data; it is the responsibility of the user to secure and protect this data in transmission or storage. It is strongly recommended to audit all data and information for personal or private use. 
+
+This software is not endorsed by, directly affiliated with, or sponsored by Interactive Brokers (IBKR) or any other companies mentioned in this documentation. All company, product and service names used are for identification purposes only. Use of these names, logos, and brands does not imply endorsement.
