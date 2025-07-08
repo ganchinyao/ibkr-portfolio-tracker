@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const referenceCode = referenceCodeMatch[1];
 
-    // // Step 2: Download the report using the reference code
+    // Step 2: Download the report using the reference code
     const downloadUrl = `https://ndcdyn.interactivebrokers.com/AccountManagement/FlexWebService/GetStatement`;
     const downloadParams = new URLSearchParams({
       t: process.env.IBKR_FLEX_TOKEN!,
@@ -65,14 +65,15 @@ export async function POST(req: NextRequest) {
     const endingValue = Number(parseFloat(firstRecord.EndingValue).toFixed(2));
 
     console.log({ date, endingValue });
-    // Update portfolio value to the database
+
+    // Step 3. Update portfolio value to the database
     await prisma.portfolioValue.upsert({
       where: { date },
       update: { value: endingValue },
       create: { date, value: endingValue },
     });
 
-    // Send weekly report every friday to telegram
+    // Step 4. Send weekly report every friday to telegram
     if (isFriday()) {
       console.log("It's Friday, sending weekly update to Telegram");
       await sendWeeklyUpdate();
@@ -106,8 +107,7 @@ async function sendWeeklyUpdate() {
     }
 
     console.log(`Found ${portfolioData.length} portfolio records`);
-
-    // Generate chart image and send to telegram
+    
     const chartBuffer = await generateChartImage(portfolioData);
     await sendToTelegram(chartBuffer, portfolioData);
   } catch (error) {
