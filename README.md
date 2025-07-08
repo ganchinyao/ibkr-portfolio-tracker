@@ -1,4 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📊 IBKR Portfolio Tracker
+
+The IBKR Portfolio Tracker is a cron job that tracks investment portfolio performance on Interactive Brokers (IBKR) and sends automated weekly updates via Telegram.
+
+<image src="./promo/img-1.png" width="300px" />
+
+## Features
+
+The cron job operates once a day to fetch the previous trading day's portfolio value and stores this information into a database. Every Friday, it sends a Telegram message to provide an update on your portfolio's value.
+
+## How it works
+
+1. The Vercel cron job triggers the daily cron job once a day.
+2. The cron job fetches the portfolio value for the last trading day, storing this value and relevant date in the database.
+3. On Fridays, a Telegram message detailing the portfolio value is sent to a pre-specified channel.
+
+**Retrieving IBKR Value**
+
+The portfolio value is safely obtained through the IBKR Flex Web Service API, which doesn't require trading permissions, setting up the Trader Workstation, or access to your password. More information on setting this up can be found under [IBKR Flex Token](#ibkr-flex-token)
 
 
 ## Getting Started
