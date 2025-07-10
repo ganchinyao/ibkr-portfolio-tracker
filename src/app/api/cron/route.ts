@@ -5,7 +5,7 @@ import { generateChartImage } from "@/app/utils/chart";
 import { sendToTelegram } from "@/../lib/telegram";
 import { isFriday } from "@/app/utils/date";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   if (
     req.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`
   ) {
