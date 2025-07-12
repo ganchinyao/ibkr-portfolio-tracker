@@ -4,6 +4,7 @@ import { prisma } from "@/../lib/prisma";
 import { generateChartImage } from "@/app/utils/chart";
 import { sendToTelegram } from "@/../lib/telegram";
 import { isFriday } from "@/app/utils/date";
+import { uploadContentToBlob } from "@/app/utils/blob";
 
 export async function GET(req: NextRequest) {
   if (
@@ -84,6 +85,33 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error calling IBKR Flex Query:", error);
+
+    // Since vercel free plan only stores log for 1hr, send logs to blob storage
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const errorLog = {
+          timestamp: new Date().toISOString(),
+          error: {
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            name: error instanceof Error ? error.name : "Unknown Error",
+          },
+          context: {
+            endpoint: "/api/cron",
+          },
+        };
+
+        const fileName = `error-logs/ibkr-flex-query-${Date.now()}.json`;
+        await uploadContentToBlob(fileName, JSON.stringify(errorLog, null, 2), {
+          contentType: "application/json",
+          cacheControlMaxAge: 0,
+        });
+
+        console.log(`Error log uploaded to blob store: ${fileName}`);
+      } catch (uploadError) {
+        console.error("Failed to upload error log to blob store:", uploadError);
+      }
+    }
     return NextResponse.json(
       {
         error: "Failed to query",
@@ -107,7 +135,7 @@ async function sendWeeklyUpdate() {
     }
 
     console.log(`Found ${portfolioData.length} portfolio records`);
-    
+
     const chartBuffer = await generateChartImage(portfolioData);
     await sendToTelegram(chartBuffer, portfolioData);
   } catch (error) {
