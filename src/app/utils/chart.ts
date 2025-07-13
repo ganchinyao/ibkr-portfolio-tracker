@@ -1,6 +1,8 @@
-import { ChartJSNodeCanvas } from "chartjs-node-canvas";
-import { ChartConfiguration } from "chart.js";
+import { createCanvas } from "@napi-rs/canvas";
+import { Chart, registerables } from "chart.js";
 import { parseStringDate, formatDateForChart, daysBetween } from "./date";
+
+Chart.register(...registerables);
 
 interface PortfolioData {
   date: string; // "yyyyMMdd" format
@@ -12,9 +14,9 @@ export async function generateChartImage(
 ): Promise<Buffer> {
   const width = 1200;
   const height = 800;
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext("2d") as unknown as CanvasRenderingContext2D;
 
-  // Convert string dates to dayjs objects for proper handling
   const processedData = data.map((d) => ({
     date: parseStringDate(d.date),
     value: d.value,
@@ -37,7 +39,7 @@ export async function generateChartImage(
   const maxValue = Math.max(...values);
   const padding = (maxValue - minValue) * 0.1;
 
-  const configuration: ChartConfiguration = {
+  const chart = new Chart(ctx, {
     type: "line",
     data: {
       labels,
@@ -60,7 +62,8 @@ export async function generateChartImage(
       ],
     },
     options: {
-      responsive: true,
+      responsive: false,
+      animation: false,
       plugins: {
         title: {
           display: true,
@@ -118,9 +121,11 @@ export async function generateChartImage(
         },
       },
     },
-  };
+  });
 
-  return await chartJSNodeCanvas.renderToBuffer(configuration);
+  chart.render();
+
+  return canvas.toBuffer("image/png");
 }
 
 function getOptimalTickCount(totalDays: number): number {

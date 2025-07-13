@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["canvas", "chartjs-node-canvas"],
+  serverExternalPackages: ["@napi-rs/canvas"],
   turbopack: {
     resolveExtensions: [".tsx", ".ts", ".jsx", ".js", ".mjs", ".json"],
   },

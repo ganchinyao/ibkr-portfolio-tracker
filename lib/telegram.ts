@@ -6,6 +6,8 @@ interface PortfolioData {
   value: number;
 }
 
+process.env.NTBA_FIX_350 = '1' // From docs, to supress warning
+
 export async function sendToTelegram(
   imageBuffer: Buffer,
   data: PortfolioData[]
