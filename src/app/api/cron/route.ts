@@ -134,8 +134,6 @@ async function sendWeeklyUpdate() {
       return;
     }
 
-    console.log(`Found ${portfolioData.length} portfolio records`);
-
     const chartBuffer = await generateChartImage(portfolioData);
     await sendToTelegram(chartBuffer, portfolioData);
   } catch (error) {
