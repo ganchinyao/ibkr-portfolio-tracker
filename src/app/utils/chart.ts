@@ -1,8 +1,51 @@
-import { createCanvas } from "@napi-rs/canvas";
+import { createCanvas, GlobalFonts } from "@napi-rs/canvas";
 import { Chart, registerables } from "chart.js";
 import { parseStringDate, formatDateForChart, daysBetween } from "./date";
 
 Chart.register(...registerables);
+
+const FONT_URL = `https://${process.env.VERCEL_URL}/fonts/font.ttf`;
+const FONT_FAMILY_NAME = "Open Sans";
+
+let fontRegistered = false;
+let fontRegistrationPromise: Promise<void> | null = null;
+
+async function registerFont() {
+  if (fontRegistered) {
+    return;
+  }
+  if (fontRegistrationPromise) {
+    return fontRegistrationPromise;
+  }
+
+  fontRegistrationPromise = (async () => {
+    try {
+      const response = await fetch(FONT_URL);
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch font: ${response.statusText} (${response.status})`
+        );
+      }
+      const fontBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(fontBuffer);
+
+      GlobalFonts.register(buffer, FONT_FAMILY_NAME);
+      fontRegistered = true;
+      Chart.defaults.font.family = FONT_FAMILY_NAME;
+      Chart.defaults.font.size = 14;
+      Chart.defaults.font.weight = "normal";
+    } catch (error) {
+      console.error(`Failed to register font from URL ${FONT_URL}:`, error);
+      fontRegistrationPromise = null;
+      throw error;
+    } finally {
+      if (!fontRegistered) {
+        fontRegistrationPromise = null;
+      }
+    }
+  })();
+  return fontRegistrationPromise;
+}
 
 interface PortfolioData {
   date: string; // "yyyyMMdd" format
@@ -12,6 +55,7 @@ interface PortfolioData {
 export async function generateChartImage(
   data: PortfolioData[]
 ): Promise<Buffer> {
+  await registerFont();
   const width = 1200;
   const height = 800;
   const canvas = createCanvas(width, height);
@@ -71,6 +115,7 @@ export async function generateChartImage(
           font: {
             size: 24,
             weight: "bold",
+            family: FONT_FAMILY_NAME,
           },
           padding: {
             top: 20,
@@ -102,6 +147,7 @@ export async function generateChartImage(
             },
             font: {
               size: 12,
+              family: FONT_FAMILY_NAME,
             },
           },
           grid: {
@@ -113,6 +159,7 @@ export async function generateChartImage(
             maxTicksLimit: getOptimalTickCount(totalTradingDays),
             font: {
               size: 10,
+              family: FONT_FAMILY_NAME,
             },
           },
           grid: {
