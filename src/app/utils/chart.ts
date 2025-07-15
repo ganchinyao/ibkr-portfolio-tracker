@@ -4,7 +4,7 @@ import { parseStringDate, formatDateForChart, daysBetween } from "./date";
 
 Chart.register(...registerables);
 
-const FONT_URL = `https://${process.env.VERCEL_URL}/fonts/font.ttf`;
+const FONT_URL = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/fonts/font.ttf`;
 const FONT_FAMILY_NAME = "Open Sans";
 
 let fontRegistered = false;
