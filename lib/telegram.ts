@@ -96,6 +96,13 @@ export async function sendToTelegram(
       caption: message,
       parse_mode: "Markdown",
     });
+    // Send to second chat if configured
+    if (process.env.TELEGRAM_CHAT_ID_2) {
+      await bot.sendPhoto(process.env.TELEGRAM_CHAT_ID_2, imageBuffer, {
+        caption: message,
+        parse_mode: "Markdown",
+      });
+    }
     console.log("Weekly update sent to Telegram successfully");
   } catch (error) {
     console.error("Error sending to Telegram:", error);
