@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Step 4. Send weekly report every friday to telegram
-    if (isFriday()) {
+    if (isFriday() && !process.env.DISABLE_WEEKLY_UPDATE) {
       console.log("It's Friday, sending weekly update to Telegram");
       await sendWeeklyUpdate();
     } else {
